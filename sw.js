@@ -1,4 +1,4 @@
-const CACHE = 'ot-app-v15';
+const CACHE = 'ot-app-v16';
 const ASSETS = [
   './',
   './login.html',
