@@ -1,26 +1,20 @@
-const PIN_KEY = 'ot_pin';
-const AUTH_KEY = 'ot_auth';
+// Keys
+const PIN_KEY = 'ot_manual_pin_v1';
+const AUTH_KEY = 'ot_manual_auth_v1';
 const DEFAULT_PIN = '120352';
 
-function getPin() {
-  return localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
-}
-function setAuthed(v) {
-  if (v) localStorage.setItem(AUTH_KEY, 'ok');
-  else localStorage.removeItem(AUTH_KEY);
-}
+// Helpers
+const getPin = () => localStorage.getItem(PIN_KEY) || DEFAULT_PIN;
+const setAuthed = (v) => v ? localStorage.setItem(AUTH_KEY,'ok') : localStorage.removeItem(AUTH_KEY);
 
-function login() {
-  const input = document.getElementById('pin-input').value || '';
-  if (input === getPin()) {
-    setAuthed(true);
-    window.location.href = 'index.html'; // ไป Dashboard
-  } else {
-    alert('PIN ไม่ถูกต้อง');
-  }
-}
-
-// ถ้า Login อยู่แล้ว ไป Dashboard เลย
+// If already authed -> go dashboard
 if (localStorage.getItem(AUTH_KEY) === 'ok') {
-  window.location.href = 'index.html';
+  location.href = 'index.html';
 }
+
+window.login = function(){
+  const val = (document.getElementById('pin-input').value || '').trim();
+  if (val.length !== 6) { alert('กรุณาใส่ PIN 6 หลัก'); return; }
+  if (val === getPin()) { setAuthed(true); location.href = 'index.html'; }
+  else { alert('PIN ไม่ถูกต้อง'); }
+};
