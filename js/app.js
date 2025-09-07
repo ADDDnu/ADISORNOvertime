@@ -143,9 +143,9 @@ function renderSettings(){
 }
 
 // ===== Event Handlers =====
-document.getElementById('btn-save').onclick=()=>{
-  const date=$('#in-date').value || ymd(new Date());
-  const entry={
+document.getElementById('btn-save').onclick = () => {
+  const date = $('#in-date').value || ymd(new Date());
+  const entry = {
     rate: parseFloat($('#in-rate').value || '0') || null,
     h1: parseFloat($('#h1').value || '0') || 0,
     h15: parseFloat($('#h15').value || '0') || 0,
@@ -153,10 +153,25 @@ document.getElementById('btn-save').onclick=()=>{
     h3: parseFloat($('#h3').value || '0') || 0,
     note: $('#in-note').value || ''
   };
-  db.upsert(date, entry);
-  renderAll();
-  alert('บันทึกเวลาสำเร็จ!\nวันที่: ' + date);
+
+  // Popup Confirm ก่อนบันทึก
+  const msg = `
+ยืนยันการบันทึกเวลา
+วันที่: ${date}
+1×: ${entry.h1} ชม.
+1.5×: ${entry.h15} ชม.
+2×: ${entry.h2} ชม.
+3×: ${entry.h3} ชม.
+  `;
+  if (confirm(msg)) {
+    db.upsert(date, entry);   // บันทึกเมื่อกดยืนยัน
+    renderAll();
+    alert('บันทึกเวลาสำเร็จ!');
+  } else {
+    alert('ยกเลิกการบันทึก');
+  }
 };
+
 document.getElementById('btn-delete').onclick=()=>{
   const date=$('#in-date').value; if(!date) return;
   if(confirm('ลบรายการของ '+date+' ?')){ db.remove(date); renderAll(); }
