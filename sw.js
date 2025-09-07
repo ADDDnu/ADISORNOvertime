@@ -1,0 +1,1 @@
+const CACHE='ot-manual-v7'; self.addEventListener('install',()=>self.skipWaiting());
