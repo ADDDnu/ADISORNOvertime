@@ -1,18 +1,97 @@
 <!doctype html>
-<html>
+<html lang="th">
 <head>
-  <meta charset="utf-8">
-  <title>EGAT Overtime</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#003399" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/app_icon.png">
+  <title>Overtime · PIN</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- LOGIN -->
+  <div class="login-wrap" id="login-wrap" style="display:none">
+    <div class="login-card">
+      <h2>ใส่ PIN เพื่อเข้าใช้งาน</h2>
+      <div class="muted">กรอก PIN 6 หลัก</div>
+      <div class="row" style="margin-top:10px">
+        <input id="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="______">
+      </div>
+      <div class="num-row">
+        <button onclick="addDigit('1')">1</button><button onclick="addDigit('2')">2</button><button onclick="addDigit('3')">3</button>
+        <button onclick="addDigit('4')">4</button><button onclick="addDigit('5')">5</button><button onclick="addDigit('6')">6</button>
+        <button onclick="addDigit('7')">7</button><button onclick="addDigit('8')">8</button><button onclick="addDigit('9')">9</button>
+        <button class="ghost" onclick="clearPin()">ล้าง</button><button onclick="addDigit('0')">0</button><button onclick="tryLogin()">เข้าสู่ระบบ</button>
+      </div>
+      <div id="pin-msg" class="muted"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="profile-wrap" id="profile-wrap">
+    <div class="profile-card">
+      <img src="assets/user_photo.jpeg" alt="user" class="profile-pic">
+      <h3>โปรไฟล์ผู้ใช้งาน</h3>
+      <div class="row">
+        <button onclick="closeProfile()">ปิด</button>
+        <button onclick="logout()">ออกจากระบบ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
   <header>
-    <img src="assets/egat_logo.jpeg" alt="EGAT Logo" style="height:40px;">
-    <span>EGAT Overtime</span>
-    <img src="assets/user_photo.jpeg" alt="User" style="height:40px;border-radius:50%;float:right;">
+    <h1>Overtime</h1>
+    <div class="header-actions">
+      <img src="assets/user_photo.jpeg" class="avatar" alt="user" id="avatar">
+      <button id="btn-logout-top">Logout</button>
+    </div>
   </header>
-  <main>
-    <h1>ระบบบันทึก OT</h1>
-    <p>PIN เริ่มต้น: 120352</p>
-  </main>
+
+  <!-- MAIN CONTENT -->
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" data-view="dashboard">แดชบอร์ด</div>
+      <div class="tab" data-view="daily">บันทึก OT</div>
+      <div class="tab" data-view="reports">รายงาน</div>
+      <div class="tab" data-view="settings">ตั้งค่า</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard">
+      <div class="card">
+        <h3>สรุปเดือนนี้ (<span id="label-month"></span>)</h3>
+        <p>รวมชั่วโมง: <span id="sum-month-hours">0</span> ชม.</p>
+        <p>รวมเงิน: <span id="sum-month-money">฿0.00</span></p>
+      </div>
+    </section>
+
+    <!-- DAILY -->
+    <section id="view-daily" style="display:none">
+      <div class="card">
+        <h3>บันทึก OT</h3>
+        <input type="date" id="in-date">
+        <input type="number" step="0.01" id="in-rate" placeholder="ฐาน/ชม. (บาท)">
+        <input type="number" step="0.25" id="h1" placeholder="ชั่วโมง 1×">
+        <input type="number" step="0.25" id="h15" placeholder="ชั่วโมง 1.5×">
+        <input type="number" step="0.25" id="h2" placeholder="ชั่วโมง 2×">
+        <input type="number" step="0.25" id="h3" placeholder="ชั่วโมง 3×">
+        <textarea id="in-note" placeholder="หมายเหตุ"></textarea>
+        <button id="btn-save">บันทึก</button>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="view-settings" style="display:none">
+      <div class="card">
+        <h3>คำนวณฐานต่อชั่วโมงจากเงินเดือน</h3>
+        <input type="number" id="monthly-salary" placeholder="เงินเดือน">
+        <button id="btn-salary-convert">คำนวณ (÷210)</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
