@@ -9,12 +9,25 @@
   <style>
     :root{--pri:#003399;--accent:#ffd200;}
     *{box-sizing:border-box} html,body{margin:0;height:100%}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(180deg,var(--pri),#2b56d6);display:flex;align-items:center;justify-content:center;color:#fff}
-    .card{width:min(420px,92%);background:#0f1733;border:1px solid #2a3561;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:linear-gradient(180deg,var(--pri),#2b56d6);
+      display:flex;align-items:center;justify-content:center;color:#fff
+    }
+    .card{
+      width:min(420px,92%);background:#0f1733;border:1px solid #2a3561;
+      border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.35)
+    }
     h1{margin:0 0 6px}
-    input{width:100%;padding:14px;border-radius:10px;border:1px solid #2a3561;background:#0f1733;color:#fff;font-size:18px;text-align:center}
-    button{width:100%;padding:12px;border-radius:10px;border:0;margin-top:10px;background:var(--accent);color:#000;font-weight:700;cursor:pointer}
-    .muted{color:#9aa3b2;font-size:12px;margin-top:8px;text-align:center}
+    input{
+      width:100%;padding:14px;border-radius:10px;border:1px solid #2a3561;
+      background:#0f1733;color:#fff;font-size:18px;text-align:center
+    }
+    button{
+      width:100%;padding:12px;border-radius:10px;border:0;margin-top:10px;
+      background:var(--accent);color:#000;font-weight:700;cursor:pointer
+    }
+    .muted{color:#c7cde0;font-size:12px;margin-top:8px;text-align:center}
   </style>
 </head>
 <body>
@@ -25,6 +38,14 @@
     <button onclick="login()">Login</button>
     <div class="muted">PIN เริ่มต้น: 120352</div>
   </div>
-  <script src="js/login.js"></script>
+
+  <script src="js/login.js?v=14"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js?v=14');
+      });
+    }
+  </script>
 </body>
 </html>
