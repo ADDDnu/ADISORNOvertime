@@ -1,7 +1,7 @@
 {
   "name": "Overtime",
   "short_name": "OT",
-  "start_url": "login.html?v=14",
+  "start_url": "login.html?v=15",
   "display": "standalone",
   "background_color": "#0f1320",
   "theme_color": "#003399",

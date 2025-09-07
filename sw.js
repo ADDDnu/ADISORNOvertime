@@ -1,30 +1,33 @@
-const CACHE = 'ot-app-v14';
+const CACHE = 'ot-app-v15';
 const ASSETS = [
   './',
   './login.html',
   './index.html',
   './manifest.webmanifest',
-  './js/login.js?v=14',
-  './js/app.js?v=14',
+  './js/login.js?v=15',
+  './js/app.js?v=15',
   './assets/app_icon.png',
   './assets/user_photo.jpeg'
 ];
 
-self.addEventListener('install', e => {
+self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
   self.skipWaiting();
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))),
+  );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', e => {
+self.addEventListener('fetch', (e) => {
   const req = e.request;
   const isHTML = req.headers.get('accept')?.includes('text/html');
 
   if (isHTML) {
+    // network-first for HTML to get fresh pages on iOS
     e.respondWith(
       fetch(req).then(r => {
         const copy = r.clone();
@@ -33,6 +36,7 @@ self.addEventListener('fetch', e => {
       }).catch(() => caches.match(req))
     );
   } else {
+    // cache-first for assets
     e.respondWith(
       caches.match(req).then(cached => cached || fetch(req).then(r => {
         const copy = r.clone();
