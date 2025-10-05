@@ -1,42 +1,22 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Login - Overtime</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="assets/app_icon.png">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login | EGAT OT</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap">
   <style>
-    :root{--pri:#003399;--accent:#ffd200;}
-    *{box-sizing:border-box} html,body{margin:0;height:100%}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(180deg,var(--pri),#2b56d6);display:flex;align-items:center;justify-content:center;color:#fff}
-    .card{width:min(420px,92%);background:#0f1733;border:1px solid #2a3561;border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-    h1{margin:0 0 6px}
-    input{width:100%;padding:14px;border-radius:10px;border:1px solid #2a3561;background:#0f1733;color:#fff;font-size:18px;text-align:center}
-    button{width:100%;padding:12px;border-radius:10px;border:0;margin-top:10px;background:var(--accent);color:#000;font-weight:700;cursor:pointer}
-    .muted{color:#c7cde0;font-size:12px;margin-top:8px;text-align:center}
+    body{font-family:'Prompt',sans-serif;background:#0f1733;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
+    input{font-size:1.2rem;padding:10px;border-radius:8px;border:none;text-align:center}
+    button{margin-top:10px;background:#445bd4;color:white;padding:8px 20px;border:none;border-radius:8px;font-size:1.2rem}
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>เข้าสู่ระบบ</h1>
-    <div class="muted">กรอก PIN 6 หลัก</div>
-    <input id="pin-input" inputmode="numeric" maxlength="6" placeholder="______" />
-    <button onclick="login()">Login</button>
-  </div>
+  <h2>เข้าสู่ระบบ</h2>
+  <p>กรอกรหัส PIN เพื่อเข้าใช้งาน</p>
+  <input type="password" id="pin" maxlength="6" placeholder="******">
+  <button id="btn-login">เข้าสู่ระบบ</button>
 
-  <script src="js/login.js?v=15"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=15');
-      });
-      document.addEventListener('visibilitychange', async () => {
-        if (document.visibilityState === 'visible') {
-          try { const reg = await navigator.serviceWorker.getRegistration(); if (reg) await reg.update(); } catch {}
-        }
-      });
-    }
-  </script>
+  <script src="js/login.js?v=17"></script>
 </body>
 </html>
