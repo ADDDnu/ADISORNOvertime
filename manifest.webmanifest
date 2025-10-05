@@ -1,14 +1,19 @@
 {
-  "name": "Overtime",
+  "name": "EGAT Overtime",
   "short_name": "OT",
-  "start_url": "login.html?v=15",
+  "start_url": "login.html?v=17",
   "display": "standalone",
-  "background_color": "#0f1320",
-  "theme_color": "#003399",
+  "background_color": "#0f1733",
+  "theme_color": "#0f1733",
   "icons": [
     {
-      "src": "assets/logo512.png",
+      "src": "assets/app_icon.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/app_icon.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
