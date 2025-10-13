@@ -1,6 +1,6 @@
 # ADDD-EGATOvertime – EGAT Overtime
 
-📦 ฟีเจอร์ทั้งหมดใน app.js
+📦 ฟีเจอร์ทั้งหมดใน
 
 🔐 ตรวจสอบ PIN (ล็อกอิน + logout)
 
