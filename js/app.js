@@ -102,7 +102,7 @@ function renderDailyChart(year, month) {
       labels: data.map((_, i) => (i + 1).toString()),
       datasets: [
         {
-          label: 'ยอดเงินรายวัน (บาท)',
+          //label: 'ยอดเงินรายวัน (บาท)',
           data: data,
           backgroundColor: data.map(
             v => (v === maxValue ? 'rgba(255,215,0,0.9)' : 'rgba(68,91,212,0.8)')
