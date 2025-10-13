@@ -3,67 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EGAT Overtime v18.0</title>
+<title>EGAT Overtime v18.1</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body {
-  font-family: "Prompt", sans-serif;
-  margin: 0;
-  background: #0e1535;
-  color: #fff;
-}
-h2 { margin-top: 0; }
-section { display: none; padding: 15px; padding-bottom: 80px; }
-section.active { display: block; }
-footer {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  background: #1a2145;
-  display: flex; justify-content: space-around;
-  padding: 8px;
-  z-index: 999;
-}
-.tab {
-  color: #fff; padding: 6px 10px;
-  cursor: pointer;
-  border-radius: 6px;
-}
-.tab.active { background: #2d3b6f; }
-canvas { pointer-events: none; }
-.item {
-  display: flex; justify-content: space-between;
-  padding: 6px; background: #18214a;
-  border-radius: 6px; margin-bottom: 4px;
-}
-.muted { color: #aaa; font-size: 0.8em; }
-.pill {
-  padding: 3px 6px; border-radius: 6px;
-  margin-left: 4px; background: #2d3b6f;
-}
-.pill.money { background: #4c9e46; }
-.day-cell {
-  width: 14%; display: inline-block;
-  text-align: center; background: #222a5a;
-  margin: 1px; padding: 4px;
-  border-radius: 4px; font-size: 0.8em;
-}
-.day-cell.low { background: #345d9c; }
-.day-cell.mid { background: #5588cc; }
-.day-cell.high { background: #85c46c; }
-.day-cell.off { background: transparent; }
-button {
-  background: #4c7aff; color: #fff;
-  border: none; border-radius: 6px;
-  padding: 6px 10px; cursor: pointer;
-}
-input, select {
-  width: 100%; margin: 5px 0; padding: 6px;
-  border-radius: 6px; border: none;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<!-- ===== Dashboard ===== -->
 <section id="view-dashboard" class="active">
   <h2>แดชบอร์ด</h2>
   <div>
@@ -79,7 +23,6 @@ input, select {
   <div id="quick-list"></div>
 </section>
 
-<!-- ===== Record ===== -->
 <section id="view-record">
   <h2>บันทึก OT</h2>
   <input type="date" id="in-date">
@@ -92,7 +35,6 @@ input, select {
   <button id="btn-delete">ลบ</button>
 </section>
 
-<!-- ===== Report ===== -->
 <section id="view-report">
   <h2>รายงาน</h2>
   <select id="year-select"></select>
@@ -101,7 +43,6 @@ input, select {
   <div id="sum-year-money"></div>
 </section>
 
-<!-- ===== Settings ===== -->
 <section id="view-settings">
   <h2>ตั้งค่า</h2>
   <h3>เงินเดือนและอัตรา</h3>
@@ -122,9 +63,9 @@ input, select {
   <input type="file" id="import-file">
   <button id="btn-import">Import</button>
   <button id="btn-update-app">ล้าง Cache / โหลดใหม่</button>
+  <button id="btn-logout">ออกจากระบบ</button>
 </section>
 
-<!-- ===== Footer Tabs ===== -->
 <footer>
   <div class="tab active" data-view="dashboard">แดชบอร์ด</div>
   <div class="tab" data-view="record">บันทึก</div>
@@ -132,122 +73,6 @@ input, select {
   <div class="tab" data-view="settings">ตั้งค่า</div>
 </footer>
 
-<script>
-// ====== START JS APP ======
-const KEY = 'ot_manual_v1';
-const AUTH_KEY = 'ot_manual_auth_v1';
-if (localStorage.getItem(AUTH_KEY) !== 'ok') localStorage.setItem(AUTH_KEY, 'ok');
-
-const db = {
-  load() { try { return JSON.parse(localStorage.getItem(KEY)) || { entries:{}, defRate:0 }; } catch { return { entries:{}, defRate:0 }; } },
-  save(d){ localStorage.setItem(KEY, JSON.stringify(d)); },
-  upsert(date, entry){ const d=db.load(); d.entries[date]=entry; db.save(d); },
-  remove(date){ const d=db.load(); delete d.entries[date]; db.save(d); }
-};
-
-const $=s=>document.querySelector(s);
-const pad=n=>String(n).padStart(2,'0');
-const ymd=d=>[d.getFullYear(),pad(d.getMonth()+1),pad(d.getDate())].join('-');
-const thb=n=>'฿'+(n||0).toFixed(2);
-const fmtMonth=(y,m)=>new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'});
-
-let state={year:new Date().getFullYear(),month:new Date().getMonth()+1};
-let dailyChart,monthlyChart;
-
-function renderDashboard(){
-  const {entries}=db.load();
-  const rows=Object.entries(entries)
-    .filter(([d])=>d.startsWith(`${state.year}-${pad(state.month)}`))
-    .map(([date,v])=>{
-      const rate=+v.rate||+db.load().defRate||0;
-      const h1=+v.h1||0,h15=+v.h15||0,h2=+v.h2||0,h3=+v.h3||0;
-      const hrs=h1+h15+h2+h3;
-      const money=h1*rate+h15*rate*1.5+h2*rate*2+h3*rate*3;
-      return {date,h1,h15,h2,h3,hrs,money};
-    });
-  const sumH=rows.reduce((a,b)=>a+b.hrs,0);
-  const sumM=rows.reduce((a,b)=>a+b.money,0);
-  $('#label-month').textContent=fmtMonth(state.year,state.month);
-  $('#sum-month-hours').textContent=sumH.toFixed(2)+' ชม.';
-  $('#sum-month-money').textContent=thb(sumM);
-
-  const list=$('#quick-list'); list.innerHTML='';
-  rows.forEach(r=>{
-    const el=document.createElement('div');
-    el.className='item';
-    el.innerHTML=`<div><b>${r.date}</b><div class="muted">1×:${r.h1} 1.5×:${r.h15} 2×:${r.h2} 3×:${r.h3}</div></div>
-    <div><span class="pill">${r.hrs.toFixed(2)} ชม.</span><span class="pill money">${thb(r.money)}</span></div>`;
-    list.appendChild(el);
-  });
-  renderDailyChart(state.year,state.month);
-  renderCalendarSummary(state.year,state.month);
-}
-
-function renderDailyChart(year,month){
-  const {entries}=db.load();
-  const days=new Date(year,month,0).getDate();
-  const data=Array(days).fill(0);
-  for(const [date,v] of Object.entries(entries)){
-    const [y,m,d]=date.split('-').map(Number);
-    if(y===year&&m===month){
-      const rate=+v.rate||+db.load().defRate||0;
-      const money=(+v.h1||0)*rate+(+v.h15||0)*rate*1.5+(+v.h2||0)*rate*2+(+v.h3||0)*rate*3;
-      data[d-1]+=money;
-    }
-  }
-  const ctx=document.getElementById('dailyChart').getContext('2d');
-  if(dailyChart) dailyChart.destroy();
-  dailyChart=new Chart(ctx,{
-    type:'bar',
-    data:{labels:data.map((_,i)=>(i+1).toString()),datasets:[{label:'ยอดเงินรายวัน (บาท)',data,backgroundColor:'rgba(68,91,212,0.8)',borderColor:'rgba(255,255,255,0.9)',borderWidth:1,borderRadius:4}]},
-    options:{responsive:true,scales:{x:{display:false},y:{ticks:{color:'#fff'},grid:{color:'rgba(255,255,255,0.1)'}}},plugins:{legend:{labels:{color:'#fff'}}}}
-  });
-}
-
-function renderCalendarSummary(year,month){
-  const {entries}=db.load(); const days=new Date(year,month,0).getDate();
-  const firstDay=new Date(year,month-1,1).getDay(); const daily=Array(days).fill(0);
-  for(const [date,v] of Object.entries(entries)){const [y,m,d]=date.split('-').map(Number);if(y===year&&m===month){daily[d-1]=(+v.h1||0)+(+v.h15||0)+(+v.h2||0)+(+v.h3||0);}}
-  const wrap=$('#calendar-summary'); wrap.innerHTML='';
-  for(let i=0;i<firstDay;i++){const e=document.createElement('div'); e.className='day-cell off'; wrap.appendChild(e);}
-  daily.forEach((h,i)=>{let cls='none';if(h>0&&h<=2)cls='low';else if(h>2&&h<=4)cls='mid';else if(h>4)cls='high';
-    const el=document.createElement('div'); el.className=`day-cell ${cls}`; el.innerHTML=`<strong>${i+1}</strong>${h>0?h.toFixed(1)+' ชม.':'-'}`; wrap.appendChild(el);});
-}
-
-$('#btn-save')?.addEventListener('click',()=>{
-  const date=$('#in-date').value||ymd(new Date());
-  const rate=parseFloat($('#in-rate').value||'0')||0;
-  const h1=+$('#h1').value||0,h15=+$('#h15').value||0,h2=+$('#h2').value||0,h3=+$('#h3').value||0;
-  if(rate<=0){alert('⚠️ กรุณาไปตั้งค่าอัตราค่าจ้างที่หน้า ตั้งค่า');return;}
-  if(!confirm(`ยืนยันบันทึก OT วันที่ ${date}?`))return;
-  db.upsert(date,{rate,h1,h15,h2,h3});
-  alert('บันทึกสำเร็จ!'); $('#h1').value=0;$('#h15').value=0;$('#h2').value=0;$('#h3').value=0;$('#in-date').value='';
-  renderDashboard();
-});
-$('#btn-delete')?.addEventListener('click',()=>{const date=$('#in-date').value;if(!date)return alert('เลือกวันที่ก่อนลบ');
-  if(confirm('ต้องการลบข้อมูลวันที่ '+date+' ?')){db.remove(date);renderDashboard();}});
-
-$('#btn-salary-calc')?.addEventListener('click',()=>{const s=+$('#salary').value;if(!s)return alert('กรุณากรอกเงินเดือน');
-  const r=(s/210).toFixed(2);$('#salary-result').textContent='อัตราต่อชั่วโมง = '+r+' บาท/ชม.';$('#default-rate').value=r;});
-$('#btn-save-rate')?.addEventListener('click',()=>{const r=+$('#default-rate').value;const d=db.load();d.defRate=r;db.save(d);alert('บันทึกค่าเริ่มต้นเรียบร้อย');});
-
-$('#btn-change-pin')?.addEventListener('click',()=>{const o=$('#old-pin').value.trim(),n=$('#new-pin').value.trim();
-  const cur=localStorage.getItem('ot_pin')||'000000';if(o!==cur)return alert('PIN ปัจจุบันไม่ถูกต้อง');
-  if(n.length!==6)return alert('PIN ใหม่ต้องมี 6 หลัก');localStorage.setItem('ot_pin',n);alert('เปลี่ยน PIN สำเร็จ');});
-$('#btn-reset-pin')?.addEventListener('click',()=>{if(confirm('รีเซ็ต PIN เป็น 000000 ?')){localStorage.setItem('ot_pin','000000');alert('รีเซ็ตสำเร็จ');}});
-$('#btn-export')?.addEventListener('click',()=>{const blob=new Blob([JSON.stringify(db.load(),null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='EGAT_OT_Backup.json';a.click();});
-$('#btn-import')?.addEventListener('click',()=>{const f=$('#import-file').files[0];if(!f)return alert('เลือกไฟล์ก่อน');
-  const r=new FileReader();r.onload=e=>{try{db.save(JSON.parse(e.target.result));alert('นำเข้าข้อมูลเรียบร้อย');renderDashboard();}catch{alert('ไฟล์ไม่ถูกต้อง');}};r.readAsText(f);});
-$('#btn-update-app')?.addEventListener('click',()=>{if(confirm('ล้าง Cache และโหลดใหม่?')){caches.keys().then(k=>k.forEach(c=>caches.delete(c)));location.reload();}});
-
-document.addEventListener('DOMContentLoaded',()=>{
-  const tabs=document.querySelectorAll('.tab');const sections=document.querySelectorAll('section');
-  tabs.forEach(tab=>{tab.addEventListener('click',()=>{tabs.forEach(t=>t.classList.remove('active'));tab.classList.add('active');
-    sections.forEach(s=>s.classList.remove('active'));const target=$('#view-'+tab.dataset.view);if(target)target.classList.add('active');
-    if(tab.dataset.view==='dashboard')renderDashboard();if(tab.dataset.view==='report')renderDashboard();});});
-  renderDashboard();
-});
-</script>
+<script src="js/app.js"></script>
 </body>
 </html>
