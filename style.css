@@ -28,3 +28,7 @@ canvas { pointer-events:none; display:block; width:100%; height:220px; }
 .day-cell.mid { background:#5588cc; }
 .day-cell.high { background:#85c46c; }
 .day-cell.off { background:transparent; }
+
+canvas#dailyChart {
+  height: 260px;
+}
