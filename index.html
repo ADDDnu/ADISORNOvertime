@@ -1,40 +1,48 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EGAT Overtime v18.1.1</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EGAT Overtime v18.4</title>
+<link rel="stylesheet" href="style.css" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- DASHBOARD -->
 <section id="view-dashboard" class="active">
-  <h2>หน้าหลัก</h2>
+  <h2>แดชบอร์ด</h2>
   <div class="month-nav">
     <button id="btn-month-prev">◀</button>
     <span id="label-month"></span>
     <button id="btn-month-next">▶</button>
   </div>
-  <canvas id="dailyChart" height="200"></canvas>
+
+  <canvas id="dailyChart" height="220"></canvas>
+
   <div id="calendar-summary"></div>
-  <h3>รวมเดือนนี้</h3>
+
+  <h3 style="margin:12px 12px 4px;">รวมเดือนนี้</h3>
   <div id="sum-month-hours">0 ชม.</div>
   <div id="sum-month-money">฿0.00</div>
+
   <div id="quick-list"></div>
 </section>
 
+<!-- RECORD -->
 <section id="view-record">
   <h2>บันทึก OT</h2>
-  <input type="date" id="in-date">
-  <input type="number" id="in-rate" placeholder="อัตราต่อชั่วโมง" readonly>
-  <input type="number" id="h1" placeholder="1x">
-  <input type="number" id="h15" placeholder="1.5x">
-  <input type="number" id="h2" placeholder="2x">
-  <input type="number" id="h3" placeholder="3x">
+  <input type="date" id="in-date" />
+  <input type="number" id="in-rate" placeholder="อัตราต่อชั่วโมง" readonly />
+  <input type="number" id="h1" placeholder="1x" />
+  <input type="number" id="h15" placeholder="1.5x" />
+  <input type="number" id="h2" placeholder="2x" />
+  <input type="number" id="h3" placeholder="3x" />
   <button id="btn-save">บันทึก</button>
   <button id="btn-delete">ลบ</button>
 </section>
 
+<!-- REPORT -->
 <section id="view-report">
   <h2>รายงาน</h2>
   <select id="year-select"></select>
@@ -43,24 +51,26 @@
   <div id="sum-year-money"></div>
 </section>
 
+<!-- SETTINGS -->
 <section id="view-settings">
   <h2>ตั้งค่า</h2>
   <h3>เงินเดือนและอัตรา</h3>
-  <input id="salary" placeholder="เงินเดือน">
+  <input id="salary" placeholder="เงินเดือน" />
   <button id="btn-salary-calc">คำนวณ</button>
   <div id="salary-result"></div>
-  <input id="default-rate" placeholder="อัตราต่อชั่วโมง">
+
+  <input id="default-rate" placeholder="อัตราต่อชั่วโมง" />
   <button id="btn-save-rate">บันทึก</button>
 
   <h3>รหัสผ่าน (PIN)</h3>
-  <input id="old-pin" placeholder="รหัสเดิม" maxlength="6">
-  <input id="new-pin" placeholder="รหัสใหม่" maxlength="6">
+  <input id="old-pin" placeholder="รหัสเดิม" maxlength="6" />
+  <input id="new-pin" placeholder="รหัสใหม่" maxlength="6" />
   <button id="btn-change-pin">เปลี่ยนรหัส</button>
   <button id="btn-reset-pin">รีเซ็ตเป็น 000000</button>
 
   <h3>จัดการข้อมูล</h3>
   <button id="btn-export">Export</button>
-  <input type="file" id="import-file">
+  <input type="file" id="import-file" />
   <button id="btn-import">Import</button>
   <button id="btn-update-app">ล้าง Cache / โหลดใหม่</button>
   <button id="btn-logout">ออกจากระบบ</button>
