@@ -143,15 +143,6 @@ function renderCalendarSummary(year, month) {
   const wrap = document.getElementById('calendar-summary');
   wrap.innerHTML = '';
 
-  // 🟢 หัวตารางชื่อวัน (อา-ส)
-  const dayNames = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
-  dayNames.forEach(name => {
-    const el = document.createElement('div');
-    el.className = 'day-cell off';
-    el.innerHTML = `<strong>${name}</strong>`;
-    wrap.appendChild(el);
-  });
-
   // 🟢 เว้นช่องก่อนวันแรกของเดือน
   for (let i = 0; i < firstDay; i++) {
     const e = document.createElement('div');
