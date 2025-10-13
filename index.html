@@ -1,41 +1,168 @@
-<!-- Settings -->
-<section id="view-settings">
-  <h3>ตั้งค่า</h3>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>EGAT OT v17.9</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/app_icon.png">
+  <meta name="theme-color" content="#0f1733">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0f1733;--card:#1a2145;--muted:#cfd3e6;}
+    *{box-sizing:border-box}
+    body{font-family:'Prompt',sans-serif;background:var(--bg);color:#fff;margin:0}
+    header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card);position:sticky;top:0;z-index:2}
+    h2{margin:0;font-size:1.2rem}
+    main{padding:12px;margin-bottom:64px}
+    section{display:none}
+    section.active{display:block}
+    .row{margin:10px 0}
+    .item{display:flex;justify-content:space-between;gap:12px;background:#121a38;border:1px solid #202a52;border-radius:12px;padding:10px}
+    .pill{background:#273469;border-radius:20px;padding:2px 10px}
+    .money{background:#2a5c27}
+    button{background:#445bd4;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:0.95rem}
+    input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3561;background:#0f1733;color:#fff}
+    footer{position:fixed;bottom:0;left:0;right:0;background:var(--card);display:flex;gap:6px;padding:8px;border-top:1px solid #2a3561}
+    .tab{flex:1;text-align:center;color:#aaa;padding:6px 8px;border-radius:8px}
+    .tab.active{color:#fff;background:#243070}
+    #quick-list{display:flex;flex-direction:column;gap:8px}
+    .muted{color:var(--muted);font-size:12px}
+    /* ตารางปฏิทิน */
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px;text-align:center}
+    .calendar-grid .day-cell{border-radius:6px;padding:6px 2px;min-height:48px;background:#1f2a65;color:#fff;font-size:11px;display:flex;flex-direction:column;justify-content:center}
+    .calendar-grid .day-cell strong{font-size:13px;margin-bottom:2px}
+    .calendar-grid .off{opacity:.3}
+    .calendar-grid .low{background:#344f9e}
+    .calendar-grid .mid{background:#4c89ff}
+    .calendar-grid .high{background:#3dbd5d}
+    .calendar-grid .none{background:#2c2c2c}
+  </style>
+</head>
+<body>
+  <header>
+    <h2>EGAT Overtime</h2>
+    <button id="btn-logout">Logout</button>
+  </header>
 
-  <!-- คำนวณอัตราจากเงินเดือน -->
-  <div class="card">
-    <h4>อัตราค่าจ้าง</h4>
-    <label>เงินเดือน (บาท):</label><br>
-    <input type="number" id="salary" placeholder="เช่น 42000"><br><br>
-    <button id="btn-salary-calc">คำนวณค่าชม. = เงินเดือน ÷ 210</button>
-    <p id="salary-result"></p>
-    <hr>
-    <label>ตั้งอัตราค่าจ้างเริ่มต้น (บาท/ชม.):</label><br>
-    <input type="number" id="default-rate" placeholder="เช่น 180"><br><br>
-    <button id="btn-save-rate">บันทึกค่าเริ่มต้น</button>
-  </div>
+  <main>
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="active">
+      <h3>
+        เดือน <span id="label-month"></span>
+        <button id="btn-month-prev">◀</button>
+        <button id="btn-month-next">▶</button>
+      </h3>
 
-  <!-- เปลี่ยนรหัส PIN -->
-  <div class="card" style="margin-top:20px;">
-    <h4>เปลี่ยนรหัส PIN เข้าระบบ</h4>
-    <label>PIN ปัจจุบัน:</label><br>
-    <input type="password" id="old-pin" maxlength="6" placeholder="******"><br><br>
-    <label>PIN ใหม่:</label><br>
-    <input type="password" id="new-pin" maxlength="6" placeholder="******"><br><br>
-    <button id="btn-change-pin">เปลี่ยนรหัส</button>
-  </div>
+      <div class="row">
+        <div class="item"><div>รวมชั่วโมง</div><div class="pill" id="sum-month-hours">0 ชม.</div></div>
+      </div>
+      <div class="row">
+        <div class="item"><div>รวมเงิน</div><div class="pill money" id="sum-month-money">฿0.00</div></div>
+      </div>
 
-  <!-- สำรอง/กู้คืนข้อมูล -->
-  <div class="card" style="margin-top:20px;">
-    <h4>สำรองและกู้คืนข้อมูล</h4>
-    <button id="btn-export">📤 สำรองข้อมูล (ดาวน์โหลด .json)</button><br><br>
-    <input type="file" id="import-file" accept=".json"><br><br>
-    <button id="btn-import">📥 กู้คืนข้อมูล</button>
-  </div>
+      <h4 style="margin:10px 0 6px">รายละเอียดรายวัน</h4>
+      <div id="quick-list"></div>
 
-  <!-- อัปเดต/ล้างแคช -->
-  <div class="card" style="margin-top:20px;">
-    <h4>อัปเดตแอป</h4>
-    <button id="btn-update-app">🔄 ล้าง Cache / โหลดใหม่</button>
-  </div>
-</section>
+      <canvas id="dailyChart" height="200" style="margin-top:16px"></canvas>
+
+      <h4 style="margin-top:10px">ตารางการทำงานรายวัน</h4>
+      <div id="calendar-summary" class="calendar-grid"></div>
+    </section>
+
+    <!-- RECORD -->
+    <section id="view-record">
+      <h3>บันทึก OT</h3>
+      <label>วันที่</label>
+      <input type="date" id="in-date">
+      <div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label>อัตราค่าจ้าง/ชม. (บาท)</label>
+          <input type="number" id="in-rate" placeholder="เช่น 180">
+        </div>
+      </div>
+      <div class="row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <div><label>1×</label><input type="number" id="h1" step="0.1" value="0"></div>
+        <div><label>1.5×</label><input type="number" id="h15" step="0.1" value="0"></div>
+        <div><label>2×</label><input type="number" id="h2" step="0.1" value="0"></div>
+        <div><label>3×</label><input type="number" id="h3" step="0.1" value="0"></div>
+      </div>
+      <div class="row" style="display:flex;gap:8px">
+        <button id="btn-save">บันทึกเวลา</button>
+        <button id="btn-delete">ลบข้อมูล</button>
+      </div>
+      <div class="muted">บันทึกแล้วจะเคลียร์ช่องกลับเป็น 0 อัตโนมัติ</div>
+    </section>
+
+    <!-- REPORT -->
+    <section id="view-report">
+      <h3>สรุปรายปี
+        <select id="year-select" style="margin-left:6px"></select>
+      </h3>
+      <div class="row">
+        <div class="item"><div>ชั่วโมงรวม</div><div class="pill" id="sum-year-hours">0 ชม.</div></div>
+      </div>
+      <div class="row">
+        <div class="item"><div>เงินรวม</div><div class="pill money" id="sum-year-money">฿0.00</div></div>
+      </div>
+      <canvas id="monthlyChart" height="220" style="margin-top:12px"></canvas>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="view-settings">
+      <h3>ตั้งค่า</h3>
+      <div class="item" style="flex-direction:column;align-items:stretch">
+        <b>อัตราค่าจ้าง</b>
+        <label>เงินเดือน (บาท):</label>
+        <input type="number" id="salary" placeholder="เช่น 42000">
+        <button id="btn-salary-calc" style="margin-top:6px">คำนวณค่าชม. = เงินเดือน ÷ 210</button>
+        <div id="salary-result" class="muted" style="margin-top:6px"></div>
+        <label style="margin-top:10px">ตั้งอัตราค่าจ้างเริ่มต้น (บาท/ชม.)</label>
+        <input type="number" id="default-rate" placeholder="เช่น 180">
+        <button id="btn-save-rate" style="margin-top:6px">บันทึกค่าเริ่มต้น</button>
+      </div>
+
+      <div class="item" style="flex-direction:column;align-items:stretch;margin-top:10px">
+        <b>เปลี่ยนรหัส PIN เข้าระบบ</b>
+        <label>PIN ปัจจุบัน:</label>
+        <input type="password" id="old-pin" maxlength="6" placeholder="******">
+        <label style="margin-top:8px">PIN ใหม่:</label>
+        <input type="password" id="new-pin" maxlength="6" placeholder="******">
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="btn-change-pin">เปลี่ยนรหัส</button>
+          <button id="btn-reset-pin" style="background:#7c3aed">รีเซ็ต PIN เป็น 000000</button>
+        </div>
+      </div>
+
+      <div class="item" style="flex-direction:column;align-items:stretch;margin-top:10px">
+        <b>สำรอง/กู้คืนข้อมูล</b>
+        <button id="btn-export" style="margin-top:6px">📤 สำรองข้อมูล (.json)</button>
+        <input type="file" id="import-file" accept=".json" style="margin-top:6px">
+        <button id="btn-import" style="margin-top:6px">📥 กู้คืนข้อมูล</button>
+      </div>
+
+      <div class="item" style="flex-direction:column;align-items:stretch;margin-top:10px">
+        <b>อัปเดตแอป</b>
+        <button id="btn-update-app" style="margin-top:6px">🔄 ล้าง Cache / โหลดใหม่</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="tab active" data-view="dashboard">แดชบอร์ด</div>
+    <div class="tab" data-view="record">บันทึก</div>
+    <div class="tab" data-view="report">รายงาน</div>
+    <div class="tab" data-view="settings">ตั้งค่า</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/app.js?v=17.9"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js?v=17.9');
+      });
+    }
+  </script>
+</body>
+</html>
