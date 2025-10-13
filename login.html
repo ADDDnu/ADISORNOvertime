@@ -11,20 +11,20 @@ body {
   color: #fff;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   height: 100vh;
   margin: 0;
 }
 h1 { margin-bottom: 10px; }
 input {
-  text-align: center;
-  font-size: 1.2em;
+  font-size: 1.3em;
   letter-spacing: 5px;
+  text-align: center;
   padding: 8px;
-  width: 140px;
-  border: none;
+  width: 160px;
   border-radius: 6px;
+  border: none;
 }
 button {
   margin-top: 10px;
@@ -35,7 +35,7 @@ button {
   color: #fff;
   cursor: pointer;
 }
-p { color: #aaa; font-size: 0.9em; margin-top: 10px; }
+p { font-size: 0.9em; color: #aaa; }
 </style>
 </head>
 <body>
@@ -48,17 +48,16 @@ p { color: #aaa; font-size: 0.9em; margin-top: 10px; }
 <script>
 const AUTH_KEY = 'ot_manual_auth_v1';
 const PIN_KEY = 'ot_pin';
-const defPin = localStorage.getItem(PIN_KEY) || '000000';
-
-document.getElementById('loginBtn').addEventListener('click', () => {
+const defaultPIN = localStorage.getItem(PIN_KEY) || '000000';
+document.getElementById('loginBtn').onclick = () => {
   const pin = document.getElementById('pin').value.trim();
-  if (pin === defPin) {
+  if (pin === defaultPIN) {
     localStorage.setItem(AUTH_KEY, 'ok');
-    location.href = 'index.html?v=18.1';
+    location.href = 'index.html?v=18.2';
   } else {
     alert('❌ รหัสไม่ถูกต้อง');
   }
-});
+};
 </script>
 </body>
 </html>
