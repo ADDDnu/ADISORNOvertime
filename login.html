@@ -1,24 +1,64 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Login | EGAT OT</title>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    body{font-family:'Prompt',sans-serif;background:#0f1733;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;margin:0}
-    input{font-size:1.2rem;padding:10px;border-radius:8px;border:none;text-align:center}
-    button{margin-top:12px;background:#445bd4;color:#fff;padding:8px 20px;border:none;border-radius:8px;font-size:1.1rem}
-    small{color:#ccc;margin-top:8px;font-size:0.85rem;display:block}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เข้าสู่ระบบ EGAT OT</title>
+<style>
+body {
+  font-family: "Prompt", sans-serif;
+  background: #0e1535;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+h1 { margin-bottom: 10px; }
+input {
+  text-align: center;
+  font-size: 1.2em;
+  letter-spacing: 5px;
+  padding: 8px;
+  width: 140px;
+  border: none;
+  border-radius: 6px;
+}
+button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #4c7aff;
+  color: #fff;
+  cursor: pointer;
+}
+p { color: #aaa; font-size: 0.9em; margin-top: 10px; }
+</style>
 </head>
 <body>
-  <h2>เข้าสู่ระบบ EGAT OT</h2>
-  <p>กรอกรหัส PIN เพื่อเข้าใช้งาน</p>
-  <input type="password" id="pin" maxlength="6" placeholder="******">
-  <button id="btn-login">เข้าสู่ระบบ</button>
-  <small>🔹 รหัสเริ่มต้น: <b>000000</b> (6 หลัก)</small>
+  <h1>EGAT OT</h1>
+  <p>กรุณาใส่รหัส PIN 6 หลัก</p>
+  <input type="password" id="pin" maxlength="6" autofocus>
+  <button id="loginBtn">เข้าสู่ระบบ</button>
+  <p>รหัสเริ่มต้น: <b>000000</b></p>
 
-  <script src="js/login.js?v=17.9"></script>
+<script>
+const AUTH_KEY = 'ot_manual_auth_v1';
+const PIN_KEY = 'ot_pin';
+const defPin = localStorage.getItem(PIN_KEY) || '000000';
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const pin = document.getElementById('pin').value.trim();
+  if (pin === defPin) {
+    localStorage.setItem(AUTH_KEY, 'ok');
+    location.href = 'index.html?v=18.1';
+  } else {
+    alert('❌ รหัสไม่ถูกต้อง');
+  }
+});
+</script>
 </body>
 </html>
