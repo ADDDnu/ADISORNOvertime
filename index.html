@@ -1,101 +1,41 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>EGAT OT v17</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="assets/app_icon.png">
-  <meta name="theme-color" content="#0f1733">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap">
-  <style>
-    body{font-family:'Prompt',sans-serif;background:#0f1733;color:#fff;margin:0;padding:0}
-    header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#1a2145}
-    h2{margin:0;font-size:1.2rem}
-    main{padding:12px;margin-bottom:60px}
-    section{display:none}
-    section.active{display:block}
-    .pill{background:#273469;border-radius:20px;padding:2px 10px;margin-left:6px}
-    .money{background:#2a5c27}
-    .row{margin-top:8px}
-    .item{display:flex;justify-content:space-between;margin:6px 0}
-    button{background:#445bd4;color:white;border:none;border-radius:8px;padding:6px 12px;font-size:1rem}
-    select{color:white;background:#0f1733;border:1px solid #2a3561;border-radius:6px;padding:4px 6px}
-    footer{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;
-            background:#1a2145;padding:8px 0;border-top:1px solid #2a3561}
-    .tab{color:#aaa;text-align:center;flex:1;font-size:0.9rem}
-    .tab.active{color:#fff}
-  </style>
-</head>
-<body>
-  <header>
-    <h2>EGAT Overtime</h2>
-    <button id="btn-logout">Logout</button>
-  </header>
+<!-- Settings -->
+<section id="view-settings">
+  <h3>ตั้งค่า</h3>
 
-  <main>
-    <!-- Dashboard -->
-    <section id="view-dashboard" class="active">
-      <h3>
-        เดือน <span id="label-month"></span>
-        <button id="btn-month-prev">◀</button>
-        <button id="btn-month-next">▶</button>
-      </h3>
-      <div class="row">
-        <div class="item"><div>รวมชั่วโมง</div><div class="pill" id="sum-month-hours">0 ชม.</div></div>
-      </div>
-      <div class="row">
-        <div class="item"><div>รวมเงิน</div><div class="pill money" id="sum-month-money">฿0.00</div></div>
-      </div>
-      <h4 style="margin-top:10px">รายละเอียดรายวัน</h4>
-      <div id="quick-list"></div>
-    </section>
+  <!-- คำนวณอัตราจากเงินเดือน -->
+  <div class="card">
+    <h4>อัตราค่าจ้าง</h4>
+    <label>เงินเดือน (บาท):</label><br>
+    <input type="number" id="salary" placeholder="เช่น 42000"><br><br>
+    <button id="btn-salary-calc">คำนวณค่าชม. = เงินเดือน ÷ 210</button>
+    <p id="salary-result"></p>
+    <hr>
+    <label>ตั้งอัตราค่าจ้างเริ่มต้น (บาท/ชม.):</label><br>
+    <input type="number" id="default-rate" placeholder="เช่น 180"><br><br>
+    <button id="btn-save-rate">บันทึกค่าเริ่มต้น</button>
+  </div>
 
-    <!-- Record -->
-    <section id="view-record">
-      <h3>บันทึก OT</h3>
-      <label>วันที่:</label><br>
-      <input type="date" id="in-date"><br><br>
-      <label>อัตราค่าจ้าง/ชม.:</label><br>
-      <input type="number" id="in-rate" placeholder="บาท"><br><br>
-      <label>1×:</label><input type="number" id="h1" step="0.1" value="0">
-      <label>1.5×:</label><input type="number" id="h15" step="0.1" value="0">
-      <label>2×:</label><input type="number" id="h2" step="0.1" value="0">
-      <label>3×:</label><input type="number" id="h3" step="0.1" value="0"><br><br>
-      <button id="btn-save">บันทึกเวลา</button>
-      <button id="btn-delete">ลบข้อมูล</button>
-    </section>
+  <!-- เปลี่ยนรหัส PIN -->
+  <div class="card" style="margin-top:20px;">
+    <h4>เปลี่ยนรหัส PIN เข้าระบบ</h4>
+    <label>PIN ปัจจุบัน:</label><br>
+    <input type="password" id="old-pin" maxlength="6" placeholder="******"><br><br>
+    <label>PIN ใหม่:</label><br>
+    <input type="password" id="new-pin" maxlength="6" placeholder="******"><br><br>
+    <button id="btn-change-pin">เปลี่ยนรหัส</button>
+  </div>
 
-    <!-- Report -->
-    <section id="view-report">
-      <h3>สรุปรายปี 
-        <select id="year-select"></select>
-      </h3>
-      <div class="row">
-        <div class="item"><div>ชั่วโมงรวม</div><div class="pill" id="sum-year-hours">0 ชม.</div></div>
-      </div>
-      <div class="row">
-        <div class="item"><div>เงินรวม</div><div class="pill money" id="sum-year-money">฿0.00</div></div>
-      </div>
-    </section>
+  <!-- สำรอง/กู้คืนข้อมูล -->
+  <div class="card" style="margin-top:20px;">
+    <h4>สำรองและกู้คืนข้อมูล</h4>
+    <button id="btn-export">📤 สำรองข้อมูล (ดาวน์โหลด .json)</button><br><br>
+    <input type="file" id="import-file" accept=".json"><br><br>
+    <button id="btn-import">📥 กู้คืนข้อมูล</button>
+  </div>
 
-    <!-- Settings -->
-    <section id="view-settings">
-      <h3>ตั้งค่า</h3>
-      <label>อัตราค่าจ้างเริ่มต้น (บาท/ชม.):</label><br>
-      <input type="number" id="default-rate" placeholder="เช่น 180"><br><br>
-      <button id="btn-save-rate">บันทึกค่าเริ่มต้น</button>
-    </section>
-  </main>
-
-  <!-- Bottom Navigation -->
-  <footer>
-    <div class="tab active" data-view="dashboard">แดชบอร์ด</div>
-    <div class="tab" data-view="record">บันทึก</div>
-    <div class="tab" data-view="report">รายงาน</div>
-    <div class="tab" data-view="settings">ตั้งค่า</div>
-  </footer>
-
-  <script src="js/app.js?v=17"></script>
-</body>
-</html>
+  <!-- อัปเดต/ล้างแคช -->
+  <div class="card" style="margin-top:20px;">
+    <h4>อัปเดตแอป</h4>
+    <button id="btn-update-app">🔄 ล้าง Cache / โหลดใหม่</button>
+  </div>
+</section>
