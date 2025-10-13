@@ -1,8 +1,8 @@
-// ===== Auth =====
+// ===== ตรวจสอบสิทธิ์ Login =====
 const AUTH_KEY='ot_manual_auth_v1';
-if(localStorage.getItem(AUTH_KEY)!=='ok') location.href='login.html?v=17.9';
+if(localStorage.getItem(AUTH_KEY)!=='ok') location.href='login.html?v=17.9.1';
 
-// ===== DB =====
+// ===== Database =====
 const KEY='ot_manual_v1';
 const db={
   load(){ try{return JSON.parse(localStorage.getItem(KEY))||{entries:{},defRate:0}}catch{return{entries:{},defRate:0}} },
@@ -11,17 +11,17 @@ const db={
   remove(date){ const d=db.load(); delete d.entries[date]; db.save(d); }
 };
 
-// ===== Utils =====
+// ===== Utility =====
 const $=s=>document.querySelector(s);
 const pad=n=>String(n).padStart(2,'0');
 const ymd=d=>[d.getFullYear(),pad(d.getMonth()+1),pad(d.getDate())].join('-');
 const thb=n=>'฿'+(n||0).toFixed(2);
 const fmtMonth=(y,m)=>new Date(y,m-1,1).toLocaleDateString('th-TH',{year:'numeric',month:'long'});
 
-// ===== State =====
+// ===== Global State =====
 let state={year:new Date().getFullYear(),month:new Date().getMonth()+1,view:'dashboard'};
 
-// ===== Dashboard render =====
+// ===== Dashboard =====
 function renderDashboard(){
   const {entries}=db.load();
   const rows=Object.entries(entries)
@@ -49,11 +49,11 @@ function renderDashboard(){
     list.appendChild(el);
   });
 
-  renderDailyChart(state.year,state.month);         // กราฟรายวัน
-  renderCalendarSummary(state.year,state.month);    // ตารางรายวัน
+  renderDailyChart(state.year,state.month);
+  renderCalendarSummary(state.year,state.month);
 }
 
-// ===== Daily Chart (month current) =====
+// ===== กราฟรายวัน (เดือนปัจจุบัน) =====
 let dailyChart;
 function renderDailyChart(year,month){
   const {entries}=db.load();
@@ -72,19 +72,19 @@ function renderDailyChart(year,month){
   if(dailyChart) dailyChart.destroy();
   dailyChart=new Chart(ctx,{
     type:'bar',
-    data:{ labels:daily.map((_,i)=>(i+1).toString()),
-      datasets:[{ label:'ยอดเงินรายวัน (บาท)', data:daily, backgroundColor:'rgba(68,91,212,.7)', borderColor:'rgba(255,255,255,.8)', borderWidth:1 }]
+    data:{labels:daily.map((_,i)=>(i+1).toString()),
+      datasets:[{label:'ยอดเงินรายวัน (บาท)',data:daily,backgroundColor:'rgba(68,91,212,.7)',borderColor:'rgba(255,255,255,.8)',borderWidth:1}]
     },
-    options:{ responsive:true, plugins:{ legend:{labels:{color:'#fff'}}, tooltip:{callbacks:{label:c=>'฿'+c.formattedValue}} },
-      scales:{ x:{ticks:{color:'#fff'},grid:{color:'#444'}}, y:{ticks:{color:'#fff'},grid:{color:'#333'}} } }
+    options:{responsive:true,plugins:{legend:{labels:{color:'#fff'}},tooltip:{callbacks:{label:c=>'฿'+c.formattedValue}}},
+      scales:{x:{ticks:{color:'#fff'},grid:{color:'#444'}},y:{ticks:{color:'#fff'},grid:{color:'#333'}}}}
   });
 }
 
-// ===== Calendar summary (hours/day) =====
+// ===== ตารางการทำงานรายวัน (Calendar) =====
 function renderCalendarSummary(year,month){
   const {entries}=db.load();
   const daysInMonth=new Date(year,month,0).getDate();
-  const firstDay=new Date(year,month-1,1).getDay(); // 0=Sun
+  const firstDay=new Date(year,month-1,1).getDay();
   const dailyHours=Array(daysInMonth).fill(0);
   for(const [date,v] of Object.entries(entries)){
     const [y,m,d]=date.split('-').map(Number);
@@ -102,7 +102,7 @@ function renderCalendarSummary(year,month){
   });
 }
 
-// ===== Year Summary (report) =====
+// ===== รายงานรายปี =====
 let monthlyChart;
 function renderYearSummary(selectedYear){
   const {entries}=db.load();
@@ -135,7 +135,7 @@ function renderMonthlyChart(selectedYear){
   if(monthlyChart) monthlyChart.destroy();
   monthlyChart=new Chart(ctx,{
     type:'bar',
-    data:{ labels:['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'],
+    data:{labels:['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'],
       datasets:[{label:'ยอดรวมรายเดือน (บาท)',data:monthly,backgroundColor:'rgba(255,206,86,.7)',borderColor:'rgba(255,255,255,.8)',borderWidth:1}]},
     options:{responsive:true,plugins:{legend:{labels:{color:'#fff'}},tooltip:{callbacks:{label:c=>'฿'+c.formattedValue}}},
       scales:{x:{ticks:{color:'#fff'},grid:{color:'#444'}},y:{ticks:{color:'#fff'},grid:{color:'#333'}}}}
@@ -152,7 +152,7 @@ function initYearDropdown(){
   select.onchange=refresh; refresh();
 }
 
-// ===== Record (save / delete) =====
+// ===== Record (save/delete) =====
 $('#btn-save')?.addEventListener('click',()=>{
   const date=$('#in-date').value || ymd(new Date());
   const rate=parseFloat($('#in-rate').value||'0')||0;
@@ -164,7 +164,6 @@ $('#btn-save')?.addEventListener('click',()=>{
   if(!confirm(msg)) return;
   db.upsert(date,{rate,h1,h15,h2,h3});
   alert('บันทึกสำเร็จ!');
-  // เคลียร์ช่อง
   $('#in-rate').value=''; $('#h1').value=0; $('#h15').value=0; $('#h2').value=0; $('#h3').value=0; $('#in-date').value='';
   renderDashboard();
 });
@@ -211,26 +210,27 @@ $('#btn-update-app')?.addEventListener('click',()=>{
   if(confirm('ล้าง Cache และโหลดใหม่?')){ caches.keys().then(keys=>keys.forEach(k=>caches.delete(k))); location.reload(true); }
 });
 
-// ===== Tabs =====
-document.querySelectorAll('.tab').forEach(t=>{
-  t.onclick=()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-    $('#view-'+t.dataset.view).classList.add('active');
-    if(t.dataset.view==='dashboard') renderDashboard();
-    if(t.dataset.view==='report') initYearDropdown();
-  };
+// ===== Navigation Tabs (โหลดหลัง DOM พร้อม) =====
+document.addEventListener("DOMContentLoaded",()=>{
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.onclick=()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+      const target=document.getElementById('view-'+t.dataset.view);
+      if(target) target.classList.add('active');
+      if(t.dataset.view==='dashboard') renderDashboard();
+      if(t.dataset.view==='report') initYearDropdown();
+    };
+  });
+  renderDashboard();
 });
 
-// ===== Month nav =====
+// ===== Month Nav =====
 $('#btn-month-prev')?.addEventListener('click',()=>{ state.month--; if(state.month<1){state.month=12;state.year--;} renderDashboard(); });
 $('#btn-month-next')?.addEventListener('click',()=>{ state.month++; if(state.month>12){state.month=1;state.year++;} renderDashboard(); });
 
 // ===== Logout =====
 $('#btn-logout')?.addEventListener('click',()=>{
-  if(confirm('ออกจากระบบหรือไม่?')){ localStorage.removeItem(AUTH_KEY); location.href='login.html?v=17.9'; }
+  if(confirm('ออกจากระบบหรือไม่?')){ localStorage.removeItem(AUTH_KEY); location.href='login.html?v=17.9.1'; }
 });
-
-// ===== Init =====
-renderDashboard();
