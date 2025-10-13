@@ -1,7 +1,7 @@
 // ===== ตรวจสอบสิทธิ์ Login =====
 const AUTH_KEY = 'ot_manual_auth_v1';
 if (localStorage.getItem(AUTH_KEY) !== 'ok')
-  location.href = 'login.html?v=17.9.2';
+  location.href = 'login.html?v=17.9.3';
 
 // ===== Database =====
 const KEY = 'ot_manual_v1';
@@ -125,7 +125,7 @@ function renderDailyChart(year, month) {
   });
 }
 
-// ===== ตารางการทำงานรายวัน (เริ่มวันอาทิตย์) =====
+// ===== ตารางการทำงานรายวัน (ไม่มีหัวชื่อวัน เริ่มวันอาทิตย์) =====
 function renderCalendarSummary(year, month) {
   const { entries } = db.load();
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -143,14 +143,14 @@ function renderCalendarSummary(year, month) {
   const wrap = document.getElementById('calendar-summary');
   wrap.innerHTML = '';
 
-  // 🟢 เว้นช่องก่อนวันแรกของเดือน
+  // ช่องว่างก่อนวันแรกของเดือน
   for (let i = 0; i < firstDay; i++) {
     const e = document.createElement('div');
     e.className = 'day-cell off';
     wrap.appendChild(e);
   }
 
-  // 🟢 เติมวันจริง
+  // เติมวันจริง
   dailyHours.forEach((h, i) => {
     let cls = 'none';
     if (h > 0 && h <= 2) cls = 'low';
@@ -167,16 +167,12 @@ function renderCalendarSummary(year, month) {
 let monthlyChart;
 function renderYearSummary(selectedYear) {
   const { entries } = db.load();
-  let totalHours = 0,
-    totalMoney = 0;
+  let totalHours = 0, totalMoney = 0;
   for (const [date, v] of Object.entries(entries)) {
     const [y] = date.split('-').map(Number);
     if (y === selectedYear) {
       const rate = +v.rate || +db.load().defRate || 0;
-      const h1 = +v.h1 || 0,
-        h15 = +v.h15 || 0,
-        h2 = +v.h2 || 0,
-        h3 = +v.h3 || 0;
+      const h1 = +v.h1 || 0, h15 = +v.h15 || 0, h2 = +v.h2 || 0, h3 = +v.h3 || 0;
       totalHours += h1 + h15 + h2 + h3;
       totalMoney += h1 * rate + h15 * rate * 1.5 + h2 * rate * 2 + h3 * rate * 3;
     }
@@ -191,10 +187,7 @@ function renderMonthlyChart(selectedYear) {
     const [y, m] = date.split('-').map(Number);
     if (y === selectedYear) {
       const rate = +v.rate || +db.load().defRate || 0;
-      const h1 = +v.h1 || 0,
-        h15 = +v.h15 || 0,
-        h2 = +v.h2 || 0,
-        h3 = +v.h3 || 0;
+      const h1 = +v.h1 || 0, h15 = +v.h15 || 0, h2 = +v.h2 || 0, h3 = +v.h3 || 0;
       const money = h1 * rate + h15 * rate * 1.5 + h2 * rate * 2 + h3 * rate * 3;
       monthly[m - 1] += money;
     }
@@ -258,148 +251,91 @@ $('#btn-save')?.addEventListener('click', () => {
   const h15 = parseFloat($('#h15').value || '0') || 0;
   const h2 = parseFloat($('#h2').value || '0') || 0;
   const h3 = parseFloat($('#h3').value || '0') || 0;
+  if (rate <= 0) {
+    alert('⚠️ กรุณาไปตั้งค่าอัตราค่าจ้างที่หน้า ตั้งค่า');
+    return;
+  }
   const msg = `ยืนยันบันทึก OT วันที่ ${date}\n1×:${h1}  1.5×:${h15}  2×:${h2}  3×:${h3}`;
   if (!confirm(msg)) return;
   db.upsert(date, { rate, h1, h15, h2, h3 });
   alert('บันทึกสำเร็จ!');
-  $('#in-rate').value = '';
-  $('#h1').value = 0;
-  $('#h15').value = 0;
-  $('#h2').value = 0;
-  $('#h3').value = 0;
-  $('#in-date').value = '';
+  $('#h1').value = 0; $('#h15').value = 0; $('#h2').value = 0; $('#h3').value = 0; $('#in-date').value = '';
   renderDashboard();
 });
 $('#btn-delete')?.addEventListener('click', () => {
   const date = $('#in-date').value;
-  if (!date) {
-    alert('เลือกวันที่ก่อนลบ');
-    return;
-  }
-  if (confirm('ต้องการลบข้อมูลวันที่ ' + date + ' ?')) {
-    db.remove(date);
-    renderDashboard();
-  }
+  if (!date) { alert('เลือกวันที่ก่อนลบ'); return; }
+  if (confirm('ต้องการลบข้อมูลวันที่ ' + date + ' ?')) { db.remove(date); renderDashboard(); }
 });
 
 // ===== Settings =====
 $('#btn-salary-calc')?.addEventListener('click', () => {
   const s = parseFloat($('#salary').value || '0');
-  if (!s) {
-    alert('กรุณากรอกเงินเดือน');
-    return;
-  }
+  if (!s) { alert('กรุณากรอกเงินเดือน'); return; }
   const rate = (s / 210).toFixed(2);
   $('#salary-result').textContent = 'อัตราต่อชั่วโมง = ' + rate + ' บาท/ชม.';
   $('#default-rate').value = rate;
 });
 $('#btn-save-rate')?.addEventListener('click', () => {
   const r = parseFloat($('#default-rate').value || '0');
-  const d = db.load();
-  d.defRate = r;
-  db.save(d);
+  const d = db.load(); d.defRate = r; db.save(d);
   alert('บันทึกค่าเริ่มต้นเรียบร้อย');
 });
-function getPin() {
-  return localStorage.getItem('ot_pin') || '000000';
-}
-function setPin(nw) {
-  localStorage.setItem('ot_pin', nw);
-}
+function getPin() { return localStorage.getItem('ot_pin') || '000000'; }
+function setPin(nw) { localStorage.setItem('ot_pin', nw); }
 $('#btn-change-pin')?.addEventListener('click', () => {
-  const oldp = $('#old-pin').value.trim(),
-    newp = $('#new-pin').value.trim();
-  if (oldp !== getPin()) {
-    alert('PIN ปัจจุบันไม่ถูกต้อง');
-    return;
-  }
-  if (newp.length !== 6) {
-    alert('PIN ใหม่ต้องมี 6 หลัก');
-    return;
-  }
-  setPin(newp);
-  alert('เปลี่ยนรหัสเรียบร้อย');
-  $('#old-pin').value = '';
-  $('#new-pin').value = '';
+  const oldp = $('#old-pin').value.trim(), newp = $('#new-pin').value.trim();
+  if (oldp !== getPin()) { alert('PIN ปัจจุบันไม่ถูกต้อง'); return; }
+  if (newp.length !== 6) { alert('PIN ใหม่ต้องมี 6 หลัก'); return; }
+  setPin(newp); alert('เปลี่ยนรหัสเรียบร้อย'); $('#old-pin').value = ''; $('#new-pin').value = '';
 });
 $('#btn-reset-pin')?.addEventListener('click', () => {
-  if (confirm('รีเซ็ต PIN เป็น 000000 ?')) {
-    setPin('000000');
-    alert('รีเซ็ตเรียบร้อย');
-  }
+  if (confirm('รีเซ็ต PIN เป็น 000000 ?')) { setPin('000000'); alert('รีเซ็ตเรียบร้อย'); }
 });
 $('#btn-export')?.addEventListener('click', () => {
-  const data = db.load();
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'EGAT_OT_Backup.json';
-  a.click();
+  const data = db.load(); const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'EGAT_OT_Backup.json'; a.click();
 });
 $('#btn-import')?.addEventListener('click', () => {
-  const file = $('#import-file').files[0];
-  if (!file) {
-    alert('กรุณาเลือกไฟล์');
-    return;
-  }
+  const file = $('#import-file').files[0]; if (!file) { alert('กรุณาเลือกไฟล์'); return; }
   const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      db.save(data);
-      alert('กู้คืนแล้ว');
-      renderDashboard();
-    } catch {
-      alert('ไฟล์ไม่ถูกต้อง');
-    }
-  };
+  reader.onload = e => { try { const data = JSON.parse(e.target.result); db.save(data); alert('กู้คืนแล้ว'); renderDashboard(); } catch { alert('ไฟล์ไม่ถูกต้อง'); } };
   reader.readAsText(file);
 });
 $('#btn-update-app')?.addEventListener('click', () => {
-  if (confirm('ล้าง Cache และโหลดใหม่?')) {
-    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-    location.reload(true);
-  }
+  if (confirm('ล้าง Cache และโหลดใหม่?')) { caches.keys().then(keys => keys.forEach(k => caches.delete(k))); location.reload(true); }
 });
 
 // ===== Tabs Navigation =====
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.tab').forEach(t => {
-    t.onclick = () => {
+  const rateInput = document.getElementById('in-rate');
+  const data = db.load();
+  if (rateInput) {
+    rateInput.readOnly = true;
+    if (data.defRate > 0) rateInput.value = data.defRate.toFixed(2);
+    else rateInput.placeholder = 'กรุณาไปตั้งค่าอัตราค่าจ้างที่หน้า ตั้งค่า';
+  }
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
       document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-      t.classList.add('active');
+      tab.classList.add('active');
       document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-      const target = document.getElementById('view-' + t.dataset.view);
+      const target = document.getElementById('view-' + tab.dataset.view);
       if (target) target.classList.add('active');
-      if (t.dataset.view === 'dashboard') renderDashboard();
-      if (t.dataset.view === 'report') initYearDropdown();
+
+      if (tab.dataset.view === 'dashboard') renderDashboard();
+      if (tab.dataset.view === 'report') initYearDropdown();
+      if (tab.dataset.view === 'record' && rateInput) {
+        const latest = db.load();
+        if (latest.defRate > 0) rateInput.value = latest.defRate.toFixed(2);
+        else { rateInput.value = ''; rateInput.placeholder = 'กรุณาไปตั้งค่าอัตราค่าจ้างที่หน้า ตั้งค่า'; }
+      }
     };
   });
   renderDashboard();
 });
 
 // ===== Month Navigation =====
-$('#btn-month-prev')?.addEventListener('click', () => {
-  state.month--;
-  if (state.month < 1) {
-    state.month = 12;
-    state.year--;
-  }
-  renderDashboard();
-});
-$('#btn-month-next')?.addEventListener('click', () => {
-  state.month++;
-  if (state.month > 12) {
-    state.month = 1;
-    state.year++;
-  }
-  renderDashboard();
-});
-
-// ===== Logout =====
-$('#btn-logout')?.addEventListener('click', () => {
-  if (confirm('ออกจากระบบหรือไม่?')) {
-    localStorage.removeItem(AUTH_KEY);
-    location.href = 'login.html?v=17.9.2';
-  }
-});
+$('#btn-month-prev')?.addEventListener('click', () => { state.month--; if (state.month < 1) { state.month = 12; state.year--; } renderDashboard(); });
+$('#btn-month-next')?.addEventListener('click', () => { state.month++; if (state.month > 12)
