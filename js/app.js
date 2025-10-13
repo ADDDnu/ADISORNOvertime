@@ -1,7 +1,7 @@
 // ===== ตรวจสอบสิทธิ์ Login =====
 const AUTH_KEY = 'ot_manual_auth_v1';
 if (localStorage.getItem(AUTH_KEY) !== 'ok')
-  location.href = 'login.html?v=17.9.3';
+  location.href = 'login.html?v=17.9.4';
 
 // ===== Database =====
 const KEY = 'ot_manual_v1';
@@ -13,19 +13,9 @@ const db = {
       return { entries: {}, defRate: 0 };
     }
   },
-  save(d) {
-    localStorage.setItem(KEY, JSON.stringify(d));
-  },
-  upsert(date, entry) {
-    const d = db.load();
-    d.entries[date] = entry;
-    db.save(d);
-  },
-  remove(date) {
-    const d = db.load();
-    delete d.entries[date];
-    db.save(d);
-  }
+  save(d) { localStorage.setItem(KEY, JSON.stringify(d)); },
+  upsert(date, entry) { const d = db.load(); d.entries[date] = entry; db.save(d); },
+  remove(date) { const d = db.load(); delete d.entries[date]; db.save(d); }
 };
 
 // ===== Utility =====
@@ -37,7 +27,7 @@ const fmtMonth = (y, m) =>
   new Date(y, m - 1, 1).toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
 
 // ===== Global State =====
-let state = { year: new Date().getFullYear(), month: new Date().getMonth() + 1, view: 'dashboard' };
+let state = { year: new Date().getFullYear(), month: new Date().getMonth() + 1 };
 
 // ===== Dashboard =====
 function renderDashboard() {
@@ -46,10 +36,7 @@ function renderDashboard() {
     .filter(([d]) => d.startsWith(`${state.year}-${pad(state.month)}`))
     .map(([date, v]) => {
       const rate = +v.rate || +db.load().defRate || 0;
-      const h1 = +v.h1 || 0,
-        h15 = +v.h15 || 0,
-        h2 = +v.h2 || 0,
-        h3 = +v.h3 || 0;
+      const h1 = +v.h1 || 0, h15 = +v.h15 || 0, h2 = +v.h2 || 0, h3 = +v.h3 || 0;
       const hours = h1 + h15 + h2 + h3;
       const money = h1 * rate + h15 * rate * 1.5 + h2 * rate * 2 + h3 * rate * 3;
       return { date, h1, h15, h2, h3, hours, money };
@@ -67,9 +54,7 @@ function renderDashboard() {
     const el = document.createElement('div');
     el.className = 'item';
     el.innerHTML = `<div><b>${r.date}</b><div class="muted">1×:${r.h1} 1.5×:${r.h15} 2×:${r.h2} 3×:${r.h3}</div></div>
-      <div><span class="pill">${r.hours.toFixed(2)} ชม.</span><span class="pill money">${thb(
-      r.money
-    )}</span></div>`;
+      <div><span class="pill">${r.hours.toFixed(2)} ชม.</span><span class="pill money">${thb(r.money)}</span></div>`;
     list.appendChild(el);
   });
 
@@ -77,55 +62,59 @@ function renderDashboard() {
   renderCalendarSummary(state.year, state.month);
 }
 
-// ===== กราฟรายวัน =====
+// ===== กราฟรายวัน (ไม่มีแกน X) =====
 let dailyChart;
 function renderDailyChart(year, month) {
   const { entries } = db.load();
   const daysInMonth = new Date(year, month, 0).getDate();
   const daily = Array(daysInMonth).fill(0);
+
   for (const [date, v] of Object.entries(entries)) {
     const [y, m, d] = date.split('-').map(Number);
     if (y === year && m === month) {
       const rate = +v.rate || +db.load().defRate || 0;
-      const h1 = +v.h1 || 0,
-        h15 = +v.h15 || 0,
-        h2 = +v.h2 || 0,
-        h3 = +v.h3 || 0;
+      const h1 = +v.h1 || 0, h15 = +v.h15 || 0, h2 = +v.h2 || 0, h3 = +v.h3 || 0;
       const money = h1 * rate + h15 * rate * 1.5 + h2 * rate * 2 + h3 * rate * 3;
       daily[d - 1] += money;
     }
   }
+
   const ctx = document.getElementById('dailyChart').getContext('2d');
   if (dailyChart) dailyChart.destroy();
+
   dailyChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: daily.map((_, i) => (i + 1).toString()),
-      datasets: [
-        {
-          label: 'ยอดเงินรายวัน (บาท)',
-          data: daily,
-          backgroundColor: 'rgba(68,91,212,.7)',
-          borderColor: 'rgba(255,255,255,.8)',
-          borderWidth: 1
-        }
-      ]
+      datasets: [{
+        label: 'ยอดเงินรายวัน (บาท)',
+        data: daily,
+        backgroundColor: 'rgba(68,91,212,0.8)',
+        borderColor: 'rgba(255,255,255,0.8)',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: '#fff' } },
-        tooltip: { callbacks: { label: c => '฿' + c.formattedValue } }
+        legend: { labels: { color: '#fff', font: { size: 12 } } },
+        tooltip: { callbacks: { label: ctx => '฿' + Number(ctx.raw).toFixed(2) } }
       },
       scales: {
-        x: { ticks: { color: '#fff' }, grid: { color: '#444' } },
-        y: { ticks: { color: '#fff' }, grid: { color: '#333' } }
+        x: { display: false, grid: { display: false } },
+        y: {
+          ticks: { color: '#fff' },
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          title: { display: true, text: 'ยอดเงิน (บาท)', color: '#fff' }
+        }
       }
     }
   });
 }
 
-// ===== ตารางการทำงานรายวัน (ไม่มีหัวชื่อวัน เริ่มวันอาทิตย์) =====
+// ===== ตารางการทำงานรายวัน (ไม่มีหัวชื่อวัน) =====
 function renderCalendarSummary(year, month) {
   const { entries } = db.load();
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -143,14 +132,12 @@ function renderCalendarSummary(year, month) {
   const wrap = document.getElementById('calendar-summary');
   wrap.innerHTML = '';
 
-  // ช่องว่างก่อนวันแรกของเดือน
   for (let i = 0; i < firstDay; i++) {
     const e = document.createElement('div');
     e.className = 'day-cell off';
     wrap.appendChild(e);
   }
 
-  // เติมวันจริง
   dailyHours.forEach((h, i) => {
     let cls = 'none';
     if (h > 0 && h <= 2) cls = 'low';
@@ -316,26 +303,25 @@ document.addEventListener('DOMContentLoaded', () => {
     else rateInput.placeholder = 'กรุณาไปตั้งค่าอัตราค่าจ้างที่หน้า ตั้งค่า';
   }
 
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.onclick = () => {
-      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  const tabs = document.querySelectorAll('.tab');
+  const sections = document.querySelectorAll('section');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(x => x.classList.remove('active'));
+      sections.forEach(s => s.classList.remove('active'));
       tab.classList.add('active');
-      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
       const target = document.getElementById('view-' + tab.dataset.view);
       if (target) target.classList.add('active');
 
-      if (tab.dataset.view === 'dashboard') renderDashboard();
-      if (tab.dataset.view === 'report') initYearDropdown();
-      if (tab.dataset.view === 'record' && rateInput) {
-        const latest = db.load();
-        if (latest.defRate > 0) rateInput.value = latest.defRate.toFixed(2);
-        else { rateInput.value = ''; rateInput.placeholder = 'กรุณาไปตั้งค่าอัตราค่าจ้างที่หน้า ตั้งค่า'; }
+      switch (tab.dataset.view) {
+        case 'dashboard': renderDashboard(); break;
+        case 'report': initYearDropdown(); break;
+        case 'record':
+          if (rateInput) {
+            const latest = db.load();
+            if (latest.defRate > 0) rateInput.value = latest.defRate.toFixed(2);
+            else { rateInput.value = ''; rateInput.placeholder = 'กรุณาไปตั้งค่าอัตราค่าจ้างที่หน้า ตั้งค่า'; }
+          }
+          break;
       }
-    };
-  });
-  renderDashboard();
-});
-
-// ===== Month Navigation =====
-$('#btn-month-prev')?.addEventListener('click', () => { state.month--; if (state.month < 1) { state.month = 12; state.year--; } renderDashboard(); });
-$('#btn-month-next')?.addEventListener('click', () => { state.month++; if (state.month > 12)
+    });
