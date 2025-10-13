@@ -39,4 +39,47 @@ canvas {
   display: block;
   box-sizing: border-box;
 }
+#calendar-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  justify-content: space-between;
+}
+
+.day-cell {
+  position: relative;
+  width: calc(14.28% - 2px);
+  aspect-ratio: 1 / 1;
+  text-align: center;
+  background: #1c2658;
+  border-radius: 10px;
+  margin: 1px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+/* ระดับความเข้มตามจำนวนชั่วโมง */
+.day-cell.low { background: #345d9c; }
+.day-cell.mid { background: #5588cc; }
+.day-cell.high { background: #85c46c; }
+.day-cell.off { background: transparent; }
+
+/* ชั่วโมงตรงกลาง (ใหญ่) */
+.day-hour {
+  font-size: 1.3em;
+  color: #fff;
+}
+
+/* วันที่มุมซ้ายล่าง */
+.day-number {
+  position: absolute;
+  bottom: 3px;
+  left: 5px;
+  font-size: 0.7em;
+  opacity: 0.8;
+}
 
