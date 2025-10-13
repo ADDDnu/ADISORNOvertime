@@ -6,17 +6,50 @@
   <title>Login | EGAT OT</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap">
   <style>
-    body{font-family:'Prompt',sans-serif;background:#0f1733;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
-    input{font-size:1.2rem;padding:10px;border-radius:8px;border:none;text-align:center}
-    button{margin-top:10px;background:#445bd4;color:white;padding:8px 20px;border:none;border-radius:8px;font-size:1.2rem}
+    body {
+      font-family:'Prompt',sans-serif;
+      background:#0f1733;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      text-align:center;
+    }
+    h2 { margin-bottom:10px; }
+    p { margin:4px 0; }
+    input {
+      font-size:1.2rem;
+      padding:10px;
+      border-radius:8px;
+      border:none;
+      text-align:center;
+      margin-top:10px;
+    }
+    button {
+      margin-top:12px;
+      background:#445bd4;
+      color:white;
+      padding:8px 20px;
+      border:none;
+      border-radius:8px;
+      font-size:1.1rem;
+    }
+    small {
+      color:#ccc;
+      margin-top:8px;
+      font-size:0.85rem;
+    }
   </style>
 </head>
 <body>
-  <h2>เข้าสู่ระบบ</h2>
+  <h2>เข้าสู่ระบบ EGAT OT</h2>
   <p>กรอกรหัส PIN เพื่อเข้าใช้งาน</p>
   <input type="password" id="pin" maxlength="6" placeholder="******">
   <button id="btn-login">เข้าสู่ระบบ</button>
+  <small>🔹 รหัสเริ่มต้น: <b>000000</b> (6 หลัก)</small>
 
-  <script src="js/login.js?v=17"></script>
+  <script src="js/login.js?v=17.3"></script>
 </body>
 </html>
