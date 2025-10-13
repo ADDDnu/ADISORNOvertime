@@ -168,16 +168,21 @@ function renderCalendarSummary(year, month) {
     wrap.appendChild(e);
   }
 
-  daily.forEach((h, i) => {
-    let cls = 'none';
-    if (h > 0 && h <= 2) cls = 'low';
-    else if (h > 2 && h <= 4) cls = 'mid';
-    else if (h > 4) cls = 'high';
-    const el = document.createElement('div');
-    el.className = `day-cell ${cls}`;
-    el.innerHTML = `<strong>${i + 1}</strong>${h > 0 ? h.toFixed(1) + ' ชม.' : '-'}`;
-    wrap.appendChild(el);
-  });
+ daily.forEach((h, i) => {
+  let cls = 'none';
+  if (h > 0 && h <= 2) cls = 'low';
+  else if (h > 2 && h <= 4) cls = 'mid';
+  else if (h > 4) cls = 'high';
+
+  const el = document.createElement('div');
+  el.className = `day-cell ${cls}`;
+  el.innerHTML = `
+    <div class="day-hour">${h > 0 ? h.toFixed(1) : '-'}</div>
+    <div class="day-number">${i + 1}</div>
+  `;
+  wrap.appendChild(el);
+});
+
 }
 
 // ===== รายงานรายปี =====
